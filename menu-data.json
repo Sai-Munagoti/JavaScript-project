@@ -1,0 +1,183 @@
+{
+  "categories": [
+    {
+      "id": 1,
+      "name": "South Indian Starters",
+      "description": "Traditional South Indian appetizers"
+    },
+    {
+      "id": 2,
+      "name": "Dosas & Uttapams",
+      "description": "Crispy dosas and savory pancakes"
+    },
+    {
+      "id": 3,
+      "name": "Curries & Gravies",
+      "description": "Authentic South Indian curries"
+    },
+    {
+      "id": 4,
+      "name": "Rice & Biryani",
+      "description": "Flavorful rice dishes"
+    },
+    {
+      "id": 5,
+      "name": "South Indian Sweets",
+      "description": "Delicious traditional desserts"
+    },
+    {
+      "id": 6,
+      "name": "Beverages & Filters Coffee",
+      "description": "South Indian specialty drinks"
+    }
+  ],
+  "items": [
+    {
+      "id": 1,
+      "name": "Masala Vada",
+      "price": 80,
+      "description": "Crispy lentil fritters with onions and spices",
+      "category_id": 1
+    },
+    {
+      "id": 2,
+      "name": "Medu Vada",
+      "price": 70,
+      "description": "Savory lentil donuts, crispy outside and soft inside",
+      "category_id": 1
+    },
+    {
+      "id": 3,
+      "name": "Onion Pakoda",
+      "price": 60,
+      "description": "Deep-fried onion fritters with gram flour",
+      "category_id": 1
+    },
+    {
+      "id": 4,
+      "name": "Ghee Roast Dosa",
+      "price": 150,
+      "description": "Crispy paper dosa roasted in ghee",
+      "category_id": 2
+    },
+    {
+      "id": 5,
+      "name": "Masala Dosa",
+      "price": 140,
+      "description": "Crispy dosa filled with spiced potato mixture",
+      "category_id": 2
+    },
+    {
+      "id": 6,
+      "name": "Onion Uttapam",
+      "price": 160,
+      "description": "Thick pancake with toppings of onion and tomatoes",
+      "category_id": 2
+    },
+    {
+      "id": 7,
+      "name": "Plain Dosa",
+      "price": 120,
+      "description": "Classic crispy South Indian crepe",
+      "category_id": 2
+    },
+    {
+      "id": 8,
+      "name": "Sambar",
+      "price": 90,
+      "description": "Tangy lentil stew with vegetables and tamarind",
+      "category_id": 3
+    },
+    {
+      "id": 9,
+      "name": "Rasam",
+      "price": 80,
+      "description": "Spicy tamarind soup with tomatoes and herbs",
+      "category_id": 3
+    },
+    {
+      "id": 10,
+      "name": "Gutti Vankaya",
+      "price": 180,
+      "description": "Stuffed eggplant curry with peanuts and spices",
+      "category_id": 3
+    },
+    {
+      "id": 11,
+      "name": "Chicken Curry",
+      "price": 220,
+      "description": "Spicy South Indian chicken curry with coconut",
+      "category_id": 3
+    },
+    {
+      "id": 12,
+      "name": "Hyderabadi Biryani",
+      "price": 280,
+      "description": "Fragrant basmati rice with aromatic spices and meat",
+      "category_id": 4
+    },
+    {
+      "id": 13,
+      "name": "Curd Rice",
+      "price": 100,
+      "description": "Cooling yogurt rice with mustard seeds",
+      "category_id": 4
+    },
+    {
+      "id": 14,
+      "name": "Lemon Rice",
+      "price": 110,
+      "description": "Tangy rice with lemon juice and peanuts",
+      "category_id": 4
+    },
+    {
+      "id": 15,
+      "name": "Coconut Rice",
+      "price": 120,
+      "description": "Aromatic rice with fresh coconut and seasonings",
+      "category_id": 4
+    },
+    {
+      "id": 16,
+      "name": "Mysore Pak",
+      "price": 90,
+      "description": "Rich sweet made from gram flour, sugar and ghee",
+      "category_id": 5
+    },
+    {
+      "id": 17,
+      "name": "Rava Kesari",
+      "price": 80,
+      "description": "Sweet semolina dessert with saffron and nuts",
+      "category_id": 5
+    },
+    {
+      "id": 18,
+      "name": "Double Ka Meetha",
+      "price": 70,
+      "description": "Hyderabadi bread pudding with nuts and cardamom",
+      "category_id": 5
+    },
+    {
+      "id": 19,
+      "name": "Filter Coffee",
+      "price": 50,
+      "description": "Traditional South Indian filter coffee",
+      "category_id": 6
+    },
+    {
+      "id": 20,
+      "name": "Badam Milk",
+      "price": 60,
+      "description": "Nutritious almond milk with cardamom",
+      "category_id": 6
+    },
+    {
+      "id": 21,
+      "name": "Buttermilk",
+      "price": 40,
+      "description": "Tangy spiced buttermilk with curry leaves",
+      "category_id": 6
+    }
+  ]
+}
