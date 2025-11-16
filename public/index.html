@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant Menu Service</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>🍛 Gachibowli South Indian Kitchen</h1>
+        <p>•🏛️• Authentic South Indian cuisine •🏛️•</p>
+        <p>📍 Gachibowli, Hyderabad | Serving traditional flavors</p>
+    </header>
+
+    <main>
+        <section class="filters">
+            <h2>Filter Menu</h2>
+            <div class="filter-controls">
+                <select id="categoryFilter">
+                    <option value="">All Categories</option>
+                </select>
+                <input type="text" id="searchInput" placeholder="Search dishes...">
+                <div class="price-filter">
+                    <input type="number" id="minPrice" placeholder="Min price (₹)" step="1">
+                    <span>-</span>
+                    <input type="number" id="maxPrice" placeholder="Max price (₹)" step="1">
+                </div>
+                <button id="clearFilters">Clear Filters</button>
+            </div>
+        </section>
+
+        <section class="menu-section">
+            <div id="menuGrid" class="menu-grid">
+                <!-- Menu items will be loaded here -->
+            </div>
+        </section>
+
+        <section class="add-item">
+            <h2>Add New Menu Item</h2>
+            <form id="addItemForm">
+                <div class="form-group">
+                    <label for="itemName">Item Name:</label>
+                    <input type="text" id="itemName" required>
+                </div>
+                <div class="form-group">
+                    <label for="itemPrice">Price (₹):</label>
+                    <input type="number" id="itemPrice" step="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="itemDescription">Description:</label>
+                    <textarea id="itemDescription" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="itemCategory">Category:</label>
+                    <select id="itemCategory" required>
+                        <option value="">Select Category</option>
+                    </select>
+                </div>
+                <button type="submit">Add Item</button>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Gachibowli South Indian Kitchen. Traditional taste, modern experience.</p>
+        <p>🌿 Serving Hyderabad's finest South Indian cuisine</p>
+        <p>Built for CI/CD learning</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

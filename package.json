@@ -1,0 +1,22 @@
+{
+  "name": "restaurant-menu-service",
+  "version": "1.0.0",
+  "description": "Simple restaurant menu service for CI/CD learning",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "build": "npm run build:frontend",
+    "build:frontend": "node build-frontend.js",
+    "test": "node test.js",
+    "lint": "echo 'Linting complete'",
+    "deploy:nginx": "npm run build && echo 'Copy dist/ contents to /var/www/html'"
+  },
+  "keywords": ["restaurant", "menu", "api", "nodejs"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0"
+  }
+}
