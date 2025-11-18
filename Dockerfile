@@ -7,12 +7,12 @@ FROM alpine:latest AS downloader
 RUN apk add --no-cache curl tar
  
 # Build arguments for Nexus
-ARG NEXUS_URL=http://nexus:8081
+ARG NEXUS_URL=http://nexus:8082
 ARG NEXUS_REPO=npm-releases
 ARG ARTIFACT_NAME=npm-releases
 ARG ARTIFACT_VERSION=1.0.0
 ARG NEXUS_USER=admin
-ARG NEXUS_PASS=admin123
+ARG NEXUS_PASS=Munagoti@123
  
 # Download artifact from Nexus
 WORKDIR /tmp
