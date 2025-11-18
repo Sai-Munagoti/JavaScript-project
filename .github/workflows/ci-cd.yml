@@ -2,141 +2,109 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches:
-      - main
-      - develop
+    branches: [main, develop]
   pull_request:
-    branches:
-      - main
-      - develop
+    branches: [main, develop]
   workflow_dispatch:
 
 env:
-  NODE_VERSION: '18'
-  DOCKER_IMAGE: munagotisai/restaurant-menu-service
+  NODE_VERSION: "18"
+  DOCKER_IMAGE: "munagotisai/restaurant-menu-service"
   ARTIFACT_NAME: restaurant-menu-service
 
 jobs:
-  # Job 1: Build, Test, and Analyze
   build-and-test:
     name: Build, Test & Code Quality
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.pkg_version.outputs.version }}
       artifact_archive: ${{ steps.package_artifact.outputs.name }}
-    
-    steps:
-      - name: 📥 Checkout Code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: 🔧 Setup Node.js
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: "npm"
 
-      - name: 🔖 Read Package Version
+      - name: Read Package Version
         id: pkg_version
         run: |
-          VERSION=$(node -p 'require("./package.json").version')
+          VERSION=$(node -p "require('./package.json').version")
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-      - name: 📦 Install Dependencies
+      - name: Install Dependencies
         run: npm ci
 
-      - name: 🔍 Run ESLint
+      - name: Run ESLint
         run: npm run lint
         continue-on-error: true
 
-      - name: 🧪 Run Tests
+      - name: Run Tests
         run: npm test
 
-      - name: 📈 SonarQube Analysis
-        if: github.event_name != 'pull_request'
-        uses: SonarSource/sonarqube-scan-action@v2
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        continue-on-error: true
-
-      - name: 🚦 SonarQube Quality Gate
-        if: github.event_name != 'pull_request'
-        uses: SonarSource/sonarqube-quality-gate-action@v1.1.0
-        timeout-minutes: 5
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        continue-on-error: true
-
-      - name: 📦 Build Artifact
+      - name: Build Artifact
         id: package_artifact
         run: |
-          set -e
           rm -rf build
           mkdir -p build
           cp -r public build/public
           cp server.js build/
           cp build-frontend.js build/
           cp package*.json build/
-          ARCHIVE_NAME=${{ env.ARTIFACT_NAME }}-${{ steps.pkg_version.outputs.version }}.tar.gz
-          tar -czf ${ARCHIVE_NAME} -C build .
-          ls -lh ${ARCHIVE_NAME}
-          echo "name=${ARCHIVE_NAME}" >> $GITHUB_OUTPUT
+          ARCHIVE="${{ env.ARTIFACT_NAME }}-${{ steps.pkg_version.outputs.version }}.tar.gz"
+          tar -czf "$ARCHIVE" -C build .
+          echo "name=$ARCHIVE" >> $GITHUB_OUTPUT
 
-      #
-      # -------- FIXED NEXUS UPLOAD FOR RAW REPOSITORY --------
-      #
-      - name: ⬆️ Upload to Nexus Repository
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      - name: Upload Artifact to Nexus
+        if: github.ref == 'refs/heads/main'
         env:
-          ARCHIVE_NAME: ${{ steps.package_artifact.outputs.name }}
+          ARCHIVE: ${{ steps.package_artifact.outputs.name }}
         run: |
-          echo "Uploading to Nexus RAW repository..."
           curl -v -u "${{ secrets.NEXUS_USERNAME }}:${{ secrets.NEXUS_PASSWORD }}" \
-            --upload-file "${ARCHIVE_NAME}" \
-            "${{ secrets.NEXUS_URL }}/repository/${{ secrets.NEXUS_REPO }}/${ARCHIVE_NAME}"
-        continue-on-error: true
+            --upload-file "$ARCHIVE" \
+            "${{ secrets.NEXUS_URL }}/repository/${{ secrets.NEXUS_REPO }}/$ARCHIVE"
 
-      - name: 📤 Upload Artifact to GitHub
+      - name: GitHub Artifact Upload
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.ARTIFACT_NAME }}
           path: ${{ steps.package_artifact.outputs.name }}
           retention-days: 30
 
-  # Job 2: Build and Push Docker Image
   docker-build-push:
     name: Build & Push Docker Image
     runs-on: ubuntu-latest
     needs: build-and-test
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    
+    if: github.ref == 'refs/heads/main'
+
     steps:
-      - name: 📥 Checkout Code
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: 🔧 Set up Docker Buildx
+      - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: 🔑 Login to Docker Hub
+      - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: 📝 Extract Metadata
+      - name: Extract Metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.DOCKER_IMAGE }}
           tags: |
-            type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value=latest
             type=raw,value=${{ needs.build-and-test.outputs.version }}
             type=sha
-            type=ref,event=branch
 
-      - name: 🐳 Build and Push Docker Image
+      - name: Build & Push Docker Image
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -146,71 +114,42 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: 📋 Image Summary
-        run: |
-          echo "## Docker Image Built Successfully! 🐳" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Tags:" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          echo "${{ steps.meta.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Pull Command:" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
-          echo "docker pull ${{ env.DOCKER_IMAGE }}:latest" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`"
-
-  # Job 3: Security Scan (Optional)
   security-scan:
     name: Security Scan
     runs-on: ubuntu-latest
     needs: docker-build-push
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    
+    if: github.ref == 'refs/heads/main'
+
     steps:
-      - name: 🔑 Login to Docker Hub
+      - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: 🔍 Run Trivy Vulnerability Scanner
+      - name: Run Trivy
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: ${{ env.DOCKER_IMAGE }}:latest
-          format: 'sarif'
-          output: 'trivy-results.sarif'
+          format: "sarif"
+          output: "trivy-results.sarif"
 
-      - name: 📤 Upload Trivy Results to GitHub Security
+      - name: Upload Security Results
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: 'trivy-results.sarif'
+          sarif_file: trivy-results.sarif
         continue-on-error: true
 
-  # Job 4: Deploy Notification (Optional)
   notify:
     name: Deployment Notification
     runs-on: ubuntu-latest
     needs: [build-and-test, docker-build-push, security-scan]
-    if: always() && github.event_name == 'push' && github.ref == 'refs/heads/main'
-    
+    if: always() && github.ref == 'refs/heads/main'
+
     steps:
-      - name: 📢 Create Deployment Summary
+      - name: Summary
         run: |
-          echo "# 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "## Build Information" >> $GITHUB_STEP_SUMMARY
-          echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Author**: ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Build Number**: ${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Artifact**: ${{ needs.build-and-test.outputs.artifact_archive }}" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "## Status" >> $GITHUB_STEP_SUMMARY
-          echo "- Build & Test: ${{ needs.build-and-test.result }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Docker Build: ${{ needs.docker-build-push.result }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Security Scan: ${{ needs.security-scan.result }}" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "## Quick Links" >> $GITHUB_STEP_SUMMARY
-          echo "- Docker Hub: ${{ env.DOCKER_IMAGE }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Workflow Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> $GITHUB_STEP_SUMMARY
+          echo "# Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "Build Result: ${{ needs.build-and-test.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "Docker Result: ${{ needs.docker-build-push.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "Security Result: ${{ needs.security-scan.result }}" >> $GITHUB_STEP_SUMMARY
